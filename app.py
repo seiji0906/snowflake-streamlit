@@ -1,37 +1,44 @@
-import streamlit as st
-import pandas as pd
 import snowflake.connector
-from snowflake.connector.pandas_tools import pd_writer
+import streamlit as st
+import os
+from dotenv import load_dotenv
 
-# Snowflake接続情報
-conn_info = {
-    'user': 'YOUR_USER',
-    'password': 'YOUR_PASSWORD',
-    'account': 'YOUR_ACCOUNT',
-    'warehouse': 'YOUR_WAREHOUSE',
-    'database': 'YOUR_DATABASE',
-    'schema': 'YOUR_SCHEMA',
-}
+load_dotenv()
 
-# Streamlitアプリのタイトル
-st.title('Snowflakeデータ分析アプリ')
+# 環境変数ファイルの読み込み
+user = os.getenv('SNOWFLAKE_USER')
+password = os.getenv('SNOWFLAKE_PASSWORD')
+account = os.getenv('SNOWFLAKE_ACCOUNT')
+warehouse = os.getenv('SNOWFLAKE_WAREHOUSE')
+database = os.getenv('SNOWFLAKE_DATABASE')
+schema = os.getenv('SNOWFLAKE_SCHEMA')
 
 # Snowflakeに接続
-conn = snowflake.connector.connect(**conn_info)
+def get_data_from_snowflake(query):
+    ctx = snowflake.connector.connect(
+        user=user,
+        password=password,
+        account=account,
+        warehouse=warehouse,
+        database=database,
+        schema=schema
+    )
+    cs = ctx.cursor()
+    try:
+        cs.execute(query)
+        df = cs.fetch_pandas_all()
+        return df
+    finally:
+        cs.close()
+        ctx.close()
 
-@st.cache(ttl=600)
-def load_data(query):
-    with conn.cursor() as cursor:
-        cursor.execute(query)
-        df = cursor.fetch_pandas_all()
-    return df
+# Streamlitアプリのタイトル
+st.title('Snowflake Data Analysis App')
 
-# ユーザーが実行したいクエリを入力
-user_query = st.text_area("SQLクエリを入力してください", 'SELECT * FROM YOUR_TABLE LIMIT 100')
+# ユーザーがクエリを入力
+user_query = st.text_input('Enter your query:', 'SELECT * FROM YOUR_TABLE LIMIT 10')
 
-# データを読み込む
-if st.button('データを読み込む'):
-    df = load_data(user_query)
+# データの取得と表示
+if st.button('Get Data'):
+    df = get_data_from_snowflake(user_query)
     st.write(df)
-
-# ここにデータ分析や可視化のコードを追加
