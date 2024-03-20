@@ -36,7 +36,7 @@ MarkupSafe==2.1.5
 mdurl==0.1.2
 multidict==6.0.5
 numpy==1.26.4
-openai==1.14.2
+openai==0.28.0
 packaging==23.2
 pandas==2.2.1
 pandas-datareader==0.10.0
