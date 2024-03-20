@@ -16,6 +16,7 @@ account = os.getenv('SNOWFLAKE_ACCOUNT')
 warehouse = os.getenv('SNOWFLAKE_WAREHOUSE')
 database = os.getenv('SNOWFLAKE_DATABASE')
 schema = os.getenv('SNOWFLAKE_SCHEMA')
+OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
 
 
 # Streamlitアプリのタイトル
@@ -269,7 +270,7 @@ StreamlitアプリにDjangoの認証システムを組み込むことで、よ�
 st.markdown('<a name="section8"></a>', unsafe_allow_html=True)
 
 # APIキーの設定
-openai.api_key = st.secrets["openai_api_key"]
+openai.api_key = OPENAI_API_KEY
 
 st.title("ChatGPT Demo")
 
@@ -279,7 +280,7 @@ user_input = st.text_input("あなたの質問を入力してください:")
 # 「送信」ボタンが押されたら応答を取得する
 if st.button("送信"):
     response = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",  # 使用するモデルを指定
+        model="gpt-4-0125-preview",  # 使用するモデルを指定
         messages=[{"role": "system", "content": "You are a helpful assistant."}, 
                     {"role": "user", "content": user_input}],
     )
@@ -314,34 +315,34 @@ st.markdown('<a name="section10"></a>', unsafe_allow_html=True)
 # user_proxy = UserProxyAgent("user_proxy", code_execution_config={"work_dir": "coding", "use_docker": False}) # IMPORTANT: set to True to run code in docker, recommended
 # user_proxy.initiate_chat(assistant, message="NVIDIAのここ5年間の株価をプロットします。")
 # # This initiates an automated chat between the two agents to solve the task
-import streamlit as st
-from autogen import AssistantAgent, UserProxyAgent, config_list_from_json
+# import streamlit as st
+# from autogen import AssistantAgent, UserProxyAgent
 
-# Initialize your AutoGen setup
-config_list = config_list_from_json(env_or_file="OAI_CONFIG_LIST.json")
-assistant = AssistantAgent("assistant", llm_config={"config_list": config_list})
-user_proxy = UserProxyAgent("user_proxy", code_execution_config={"work_dir": "coding", "use_docker": False})  # IMPORTANT: set to True to run code in docker, recommended
+# # Initialize your AutoGen setup
+# # config_list = config_list_from_json(env_or_file="OAI_CONFIG_LIST.json")
+# assistant = AssistantAgent("assistant", llm_config={"config_list": [{"model": "gpt-4", "api_key": OPENAI_API_KEY}, {"model": "gpt-3.5-turbo", "api_key": OPENAI_API_KEY}]})
+# user_proxy = UserProxyAgent("user_proxy", code_execution_config={"work_dir": "coding", "use_docker": False})  # IMPORTANT: set to True to run code in docker, recommended
 
-def initiate_chat(message):
-    # This function will handle the chat initiation and return the assistant's response
-    # Note: This is a placeholder function. You'll need to adapt it to your actual AutoGen setup and ensure it captures and returns the assistant's response correctly.
-    response = "This is where you'll display the assistant's response."
-    return response
+# def initiate_chat(message):
+#     # This function will handle the chat initiation and return the assistant's response
+#     # Note: This is a placeholder function. You'll need to adapt it to your actual AutoGen setup and ensure it captures and returns the assistant's response correctly.
+#     response = "This is where you'll display the assistant's response."
+#     return response
 
-# Streamlit UI
-st.title("AutoGen Integration Example")
+# # Streamlit UI
+# st.title("AutoGen Integration Example")
 
-# User input
-user_message = st.text_input("Enter your message:", "")
+# # User input
+# user_message = st.text_input("Enter your message:", "")
 
-# Button to initiate chat
-if st.button("Send"):
-    # Initiate chat with the assistant and capture the response
-    response = initiate_chat(user_message)
+# # Button to initiate chat
+# if st.button("Send"):
+#     # Initiate chat with the assistant and capture the response
+#     response = initiate_chat(user_message)
     
-    # Display the response
-    st.text_area("Assistant's Response:", value=response, height=300)
+#     # Display the response
+#     st.text_area("Assistant's Response:", value=response, height=300)
 
-# Note: This is a simplified example. The actual implementation of the initiate_chat function
-# will depend on how you've set up your AutoGen configuration and how you handle the chat logic.
+# # Note: This is a simplified example. The actual implementation of the initiate_chat function
+# # will depend on how you've set up your AutoGen configuration and how you handle the chat logic.
 
