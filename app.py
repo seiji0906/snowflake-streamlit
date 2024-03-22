@@ -412,7 +412,6 @@ st.markdown("""
 # st.text('Fixed width text')
 # st.markdown('_Markdown_') # see #*
 # st.caption('Balloons. Hundreds of them...')
-# st.latex(r''' e^{i\pi} + 1 = 0 ''')
 # st.write('Most objects') # df, err, func, keras!
 # st.write(['st', 'is <', 3]) # see *
 # st.title('My title')
@@ -595,7 +594,7 @@ st.plotly_chart(fig)
 st.markdown('<a name="section7"></a>', unsafe_allow_html=True)
 st.title('Streamlitアプリのユーザー制御について')
 
-st.markdown('''
+st.markdown("""
 
 『streamlitのアプリ内で、ユーザー制御を行い、ユーザーによって閲覧するデータを制限する方法を最新の情報をもとに調査してください。』
 
@@ -622,8 +621,7 @@ StreamlitアプリにDjangoの認証システムを組み込むことで、よ�
 ### **5. st.experimental_userを使ったユーザー情報の取得**（[参考元資料](https://docs.streamlit.io/library/api-reference/personalization/st.experimental_user)）
 
 **`st.experimental_user`**は、現在のユーザーに関する情報をアクセスするための読み取り専用の辞書ライクなオブジェクトです。これを利用することで、ログインしているユーザーのメールアドレスに基づいてアプリのコンテンツをカスタマイズすることができます。ただし、この機能は実験的なものであり、APIは変更される可能性があることに注意が必要です。』
-            ''')
-
+            """)
 
 # .streamlit/secrets.toml
 # openai_api_key = "YOUR_OPENAI_API_KEY"
@@ -654,10 +652,10 @@ if st.button("送信"):
 st.markdown('<a name="section9"></a>', unsafe_allow_html=True)
 st.title('妄想')
 
-st.markdown('''
+st.markdown("""
 Azure上に売上データ等で、RAGを構築してGPT(AzureOpenAI)に参照させて、（かつ、AutoGenとかでGPT同士の会話を見ながら、簡易的なデータ分析ができる？？（←現状、コストと得られるものが見合わないかも。。）
 加えて、autoGenでプログラミングのお願いをすると、openinterpreterのように、ローカル上でパッケージ等をインストールするので、環境をめちゃくちゃにされる可能性。ユーザーに使用させるのには向かないかも。
-''')
+""")
 
 
 ######################AutoGenを利用#########################
