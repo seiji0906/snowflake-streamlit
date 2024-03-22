@@ -49,6 +49,7 @@ st.markdown("""
 8. [ChatGPT](#section8)
 9. [妄想](#section9)
 10. [AutoGen](#section10)
+11. [StreamlitとStreamlit in Snowflakeについて](#section11)
 """, unsafe_allow_html=True)
 
 
@@ -351,6 +352,23 @@ st.markdown('<a name="section10"></a>', unsafe_allow_html=True)
 # # Note: This is a simplified example. The actual implementation of the initiate_chat function
 # # will depend on how you've set up your AutoGen configuration and how you handle the chat logic.
 
+
+##############################StreamlitとStreamlit in Snowflakeについて######################################
+st.markdown('<a name="section11"></a>', unsafe_allow_html=True)
+st.markdown('''
+Streamlit in Snowflakeで開発したアプリは、Snowflake上でしか、つまりSnowflakeアカウントを持っている人しか閲覧できない。
+この情報からNTTドコモが開発に用いたのは、streamlit in snowflakeではなく、streamlit単体であると推測できる。
+
+またClaude3Sonnetに推測させたところ、
+『記事の内容からは、ドコモがStreamlitアプリをどのように構築したかについての具体的な技術的詳細は述べられていません。しかし、以下の点から推測することができます。
+	1. Streamlit単体を使い、Snowflake へはAPIでアクセスしている可能性が高い
+記事には「自社プライベートクラウド上にStreamlit環境を構築している」と書かれています。これはStreamlitをインストールしたサーバー環境を用意したことを示唆しています。
+また、Snowflakeのデータにアクセスする際は「Snowflake ConnectorなどのAPIを使って接続する」というのが一般的な方法です。
+	2. Streamlit in Snowflakeは利用していない可能性が高い
+記事の中で、Streamlit in Snowflakeについての言及は一切ありません。この機能を利用していれば、おそらく言及があったと考えられます。
+Streamlit in Snowflakeは2023年12月に一般提供が開始されたばかりの新しい機能です。この記事で紹介されているドコモのStreamlit導入は、その前からの取り組みと推測されます。
+したがって、この時点ではStreamlit単体を使い、SnowflakeへはAPIで接続している可能性が高いと考えられます。ただし、将来的にStreamlit in Snowflakeへの移行も視野に入れているかもしれません。』
+''')
 
 ###############################サイドバーにソースコードを表示################################
 code = '''
