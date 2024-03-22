@@ -22,6 +22,11 @@ OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
 # Streamlitアプリのタイトル
 st.title('Snowflake Data Analysis App')
 
+st.text("""
+【アプリ概要】
+Snowflake上のデータ（ORDERSテーブル）を取得し、ユーザーが選択したカラムを多様なグラフで表示する
+""")
+
 # Markdownを使用してリンクを表示
 st.markdown('[今回のLTのきっかけ記事（NTTドコモがStreamlitを社内導入）](https://news.yahoo.co.jp/articles/624de9b79dd9e53164ece15231d6e524a36d8ad4)')
 
