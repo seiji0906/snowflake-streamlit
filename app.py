@@ -355,6 +355,7 @@ st.markdown('<a name="section10"></a>', unsafe_allow_html=True)
 
 ##############################StreamlitとStreamlit in Snowflakeについて######################################
 st.markdown('<a name="section11"></a>', unsafe_allow_html=True)
+st.title('StreamlitとStreamlit in Snowflakeについて')
 st.markdown('''
 Streamlit in Snowflakeで開発したアプリは、Snowflake上でしか、つまりSnowflakeアカウントを持っている人しか閲覧できない。
 この情報からNTTドコモが開発に用いたのは、streamlit in snowflakeではなく、streamlit単体であると推測できる。
