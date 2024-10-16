@@ -7,19 +7,123 @@ import numpy as np
 import plotly.express as px
 import openai
 
-load_dotenv()
+def load_env_variables():
+    load_dotenv()
+    return {
+        'user': os.getenv('SNOWFLAKE_USER'),
+        'password': os.getenv('SNOWFLAKE_PASSWORD'),
+        'account': os.getenv('SNOWFLAKE_ACCOUNT'),
+        'warehouse': os.getenv('SNOWFLAKE_WAREHOUSE'),
+        'database': os.getenv('SNOWFLAKE_DATABASE'),
+        'schema': os.getenv('SNOWFLAKE_SCHEMA'),
+        'OPENAI_API_KEY': os.getenv('OPENAI_API_KEY')
+    }
 
-# 環境変数ファイルの読み込み
-user = os.getenv('SNOWFLAKE_USER')
-password = os.getenv('SNOWFLAKE_PASSWORD')
-account = os.getenv('SNOWFLAKE_ACCOUNT')
-warehouse = os.getenv('SNOWFLAKE_WAREHOUSE')
-database = os.getenv('SNOWFLAKE_DATABASE')
-schema = os.getenv('SNOWFLAKE_SCHEMA')
-OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
+def connect_to_snowflake(conn_info):
+    conn = snowflake.connector.connect(**conn_info)
+    sql_query = "SELECT * FROM orders"
+    df = pd.read_sql(sql_query, conn)
+    conn.close()
+    return df
 
+def plot_scatter(df, column_mapping):
+    st.markdown('<a name="section1"></a>', unsafe_allow_html=True)
+    st.header('散布図')
 
-# Streamlitアプリのタイトル
+    with st.expander("カラム名マッピングを表示", expanded=False):
+        st.write(column_mapping)
+
+    japanese_column_names = list(column_mapping.values())
+    selected_x_japanese = st.selectbox('X軸に使用するカラムを選択してください', japanese_column_names, index=0, key='scatter_x')
+    selected_y_japanese = st.selectbox('Y軸に使用するカラムを選択してください', japanese_column_names, index=1, key='scatter_y')
+
+    selected_x_english = list(column_mapping.keys())[japanese_column_names.index(selected_x_japanese)]
+    selected_y_english = list(column_mapping.keys())[japanese_column_names.index(selected_y_japanese)]
+
+    fig = px.scatter(df, x=selected_x_english, y=selected_y_english, title=f'{column_mapping[selected_x_english]} vs {column_mapping[selected_y_english]}')
+    st.plotly_chart(fig)
+
+def plot_histogram(df, column_mapping):
+    st.markdown('<a name="section2"></a>', unsafe_allow_html=True)
+    st.header('ヒストグラム')
+
+    with st.expander("カラム名マッピングを表示", expanded=False):
+        st.write(column_mapping)
+
+    japanese_column_names = list(column_mapping.values())
+    selected_histogram_japanese = st.selectbox('ヒストグラムに使用するカラムを選択してください', japanese_column_names, index=0, key='histogram_select')
+    selected_histogram_english = list(column_mapping.keys())[japanese_column_names.index(selected_histogram_japanese)]
+
+    fig = px.histogram(df, x=selected_histogram_english, title=f'{column_mapping[selected_histogram_english]}のヒストグラム')
+    st.plotly_chart(fig)
+
+def plot_boxplot(df, column_mapping):
+    st.markdown('<a name="section3"></a>', unsafe_allow_html=True)
+    st.header('箱ひげ図')
+
+    with st.expander("カラム名マッピングを表示", expanded=False):
+        st.write(column_mapping)
+
+    japanese_column_names = list(column_mapping.values())
+    selected_boxplot_japanese = st.selectbox('箱ひげ図に使用するカラムを選択してください', japanese_column_names, index=0, key='boxplot_select')
+    selected_boxplot_english = list(column_mapping.keys())[japanese_column_names.index(selected_boxplot_japanese)]
+
+    fig = px.box(df, y=selected_boxplot_english, title=f'{column_mapping[selected_boxplot_english]}の箱ひげ図')
+    st.plotly_chart(fig)
+
+def plot_bar(df, column_mapping):
+    st.markdown('<a name="section4"></a>', unsafe_allow_html=True)
+    st.header('棒グラフ')
+
+    japanese_column_names = list(column_mapping.values())
+    selected_bar_category_japanese = st.selectbox('棒グラフのカテゴリとして使用するカラムを選択してください', japanese_column_names, index=0, key='bar_category_select')
+    selected_bar_value_japanese = st.selectbox('棒グラフの値として使用するカラムを選択してください', japanese_column_names, index=1, key='bar_value_select')
+
+    selected_bar_category_english = list(column_mapping.keys())[japanese_column_names.index(selected_bar_category_japanese)]
+    selected_bar_value_english = list(column_mapping.keys())[japanese_column_names.index(selected_bar_value_japanese)]
+
+    fig = px.bar(df, x=selected_bar_category_english, y=selected_bar_value_english, title=f'{column_mapping[selected_bar_category_english]}による{column_mapping[selected_bar_value_english]}の棒グラフ')
+    st.plotly_chart(fig)
+
+def plot_pie(df, column_mapping):
+    st.markdown('<a name="section5"></a>', unsafe_allow_html=True)
+    st.header('円グラフ')
+
+    japanese_column_names = list(column_mapping.values())
+    selected_pie_chart_japanese = st.selectbox('円グラフに使用するカテゴリカラムを選択してください', japanese_column_names, index=0, key='pie_chart_select')
+    selected_pie_chart_english = list(column_mapping.keys())[japanese_column_names.index(selected_pie_chart_japanese)]
+
+    fig = px.pie(df, names=selected_pie_chart_english, title=f'{column_mapping[selected_pie_chart_english]}の円グラフ')
+    st.plotly_chart(fig)
+
+def plot_heatmap(df, column_mapping):
+    st.markdown('<a name="section6"></a>', unsafe_allow_html=True)
+    st.header('ヒートマップ')
+
+    japanese_column_names = list(column_mapping.values())
+    selected_heatmap_x_japanese = st.selectbox('ヒートマップのX軸に使用するカテゴリカラムを選択してください', japanese_column_names, index=0, key='heatmap_x_select')
+    selected_heatmap_y_japanese = st.selectbox('ヒートマップのY軸に使用するカテゴリカラムを選択してください', japanese_column_names, index=1, key='heatmap_y_select')
+
+    selected_heatmap_x_english = list(column_mapping.keys())[japanese_column_names.index(selected_heatmap_x_japanese)]
+    selected_heatmap_y_english = list(column_mapping.keys())[japanese_column_names.index(selected_heatmap_y_japanese)]
+
+    heatmap_df = df.groupby([selected_heatmap_x_english, selected_heatmap_y_english]).size().reset_index(name='counts')
+    heatmap_df_pivot = heatmap_df.pivot(index=selected_heatmap_y_english, columns=selected_heatmap_x_english, values='counts')
+
+    fig = px.imshow(heatmap_df_pivot, labels=dict(x=column_mapping[selected_heatmap_x_english], y=column_mapping[selected_heatmap_y_english], color="Count"), x=heatmap_df_pivot.columns, y=heatmap_df_pivot.index, aspect="auto", title=f'{column_mapping[selected_heatmap_x_english]}と{column_mapping[selected_heatmap_y_english]}のヒートマップ')
+    st.plotly_chart(fig)
+
+env_vars = load_env_variables()
+conn_info = {
+    'user': env_vars['user'],
+    'password': env_vars['password'],
+    'account': env_vars['account'],
+    'warehouse': env_vars['warehouse'],
+    'database': env_vars['database'],
+    'schema': env_vars['schema']
+}
+OPENAI_API_KEY = env_vars['OPENAI_API_KEY']
+
 st.title('Snowflake Data Analysis App')
 
 st.text("""
@@ -27,16 +131,12 @@ st.text("""
 Snowflake上のデータ（ORDERSテーブル）を取得し、ユーザーが選択したカラムを多様なグラフで表示する
 """)
 
-# Markdownを使用してリンクを表示
 st.markdown('[今回のLTのきっかけ記事（NTTドコモがStreamlitを社内導入）](https://news.yahoo.co.jp/articles/624de9b79dd9e53164ece15231d6e524a36d8ad4)')
-
 st.markdown('[ソースコード](https://github.com/seiji0906/snowflake-streamlit)')
 st.markdown('[サンプルデータ元](https://www.kaggle.com/datasets/kyanyoga/sample-sales-data?resource=download)')
-
 st.markdown('[Streamlit公式ページ](https://streamlit.io)')
 st.markdown('[Streamlit Cheat Sheet](https://cheat-sheet.streamlit.app)')
 
-# 目次
 st.markdown("""
 # 目次
 1. [散布図](#section1)
@@ -52,44 +152,8 @@ st.markdown("""
 11. [StreamlitとStreamlit in Snowflakeについて](#section11)
 """, unsafe_allow_html=True)
 
+df = connect_to_snowflake(conn_info)
 
-###### 文字列表示系
-# st.text('Fixed width text')
-# st.markdown('_Markdown_') # see #*
-# st.caption('Balloons. Hundreds of them...')
-# st.latex(r''' e^{i\pi} + 1 = 0 ''')
-# st.write('Most objects') # df, err, func, keras!
-# st.write(['st', 'is <', 3]) # see *
-# st.title('My title')
-# st.header('My header')
-# st.subheader('My sub')
-# st.code('for i in range(8): foo()')
-
-###################snowflakeへ接続########################
-# Snowflakeへの接続情報
-conn_info = {
-    'user': user,
-    'password': password,
-    'account': account,
-    'warehouse': warehouse,
-    'database': database,
-    'schema': schema
-}
-
-# Snowflakeに接続
-conn = snowflake.connector.connect(**conn_info)
-
-    # SQLクエリの実行とDataFrameへの読み込み
-sql_query = "SELECT * FROM orders"
-df = pd.read_sql(sql_query, conn)
-
-# 接続を閉じる
-conn.close()
-#########################################################
-
-
-#####################ORDERSテーブルのカラム名とその日本語のマッピング#######################
-# 英語のカラム名とそれに対応する日本語訳をマッピングしたオブジェクト
 column_mapping = {
     "ORDERNUMBER": "注文番号",
     "QUANTITYORDERED": "注文数量",
@@ -117,125 +181,13 @@ column_mapping = {
     "CONTACTFIRSTNAME": "担当者名",
     "DEALSIZE": "取引規模"
 }
-############################################################################################
 
-
-
-############################### 散布図 #####################################
-st.markdown('<a name="section1"></a>', unsafe_allow_html=True)
-st.header('散布図')
-
-# st.expanderを使用してカラム名マッピングを閉じた状態で表示
-with st.expander("カラム名マッピングを表示", expanded=False):
-    st.write(column_mapping)
-
-# 日本語のカラム名のリストを選択肢として渡す
-japanese_column_names = list(column_mapping.values())
-selected_x_japanese = st.selectbox('X軸に使用するカラムを選択してください', japanese_column_names, index=0, key='scatter_x')
-selected_y_japanese = st.selectbox('Y軸に使用するカラムを選択してください', japanese_column_names, index=1, key='scatter_y')
-
-# 選択された日本語名から英語のカラム名を逆引き
-selected_x_english = list(column_mapping.keys())[japanese_column_names.index(selected_x_japanese)]
-selected_y_english = list(column_mapping.keys())[japanese_column_names.index(selected_y_japanese)]
-
-
-# 散布図を表示
-fig = px.scatter(df, x=selected_x_english, y=selected_y_english, title=f'{column_mapping[selected_x_english]} vs {column_mapping[selected_y_english]}')
-st.plotly_chart(fig)
-############################################################################
-
-
-#############################ヒストグラム##################################
-st.markdown('<a name="section2"></a>', unsafe_allow_html=True)
-# ヒストグラムセクション
-st.header('ヒストグラム')
-
-# st.expanderを使用してカラム名マッピングを閉じた状態で表示
-with st.expander("カラム名マッピングを表示", expanded=False):
-    st.write(column_mapping)
-
-# ヒストグラムのカラム選択。キーを使って散布図のセレクトボックスと区別します。
-selected_histogram_japanese = st.selectbox('ヒストグラムに使用するカラムを選択してください', japanese_column_names, index=0, key='histogram_select')
-selected_histogram_english = list(column_mapping.keys())[japanese_column_names.index(selected_histogram_japanese)]
-
-# 選択されたカラムに基づいてヒストグラムを描画
-fig = px.histogram(df, x=selected_histogram_english, title=f'{column_mapping[selected_histogram_english]}のヒストグラム')
-st.plotly_chart(fig)
-############################################################################
-
-##################################箱ひげ図##################################
-st.markdown('<a name="section3"></a>', unsafe_allow_html=True)
-# 箱ひげ図セクション
-st.header('箱ひげ図')
-
-# st.expanderを使用してカラム名マッピングを閉じた状態で表示
-with st.expander("カラム名マッピングを表示", expanded=False):
-    st.write(column_mapping)
-
-# 箱ひげ図のカラム選択。キーを使って他のセレクトボックスと区別します。
-selected_boxplot_japanese = st.selectbox('箱ひげ図に使用するカラムを選択してください', japanese_column_names, index=0, key='boxplot_select')
-selected_boxplot_english = list(column_mapping.keys())[japanese_column_names.index(selected_boxplot_japanese)]
-
-# 選択されたカラムに基づいて箱ひげ図を描画
-fig = px.box(df, y=selected_boxplot_english, title=f'{column_mapping[selected_boxplot_english]}の箱ひげ図')
-st.plotly_chart(fig)
-#############################################################################
-
-####################################棒グラフ#################################
-st.markdown('<a name="section4"></a>', unsafe_allow_html=True)
-# 棒グラフセクション
-st.header('棒グラフ')
-# 棒グラフのカテゴリカラム選択。キーを使って他のセレクトボックスと区別します。
-selected_bar_category_japanese = st.selectbox('棒グラフのカテゴリとして使用するカラムを選択してください', japanese_column_names, index=0, key='bar_category_select')
-# 棒グラフの値カラム選択
-selected_bar_value_japanese = st.selectbox('棒グラフの値として使用するカラムを選択してください', japanese_column_names, index=1, key='bar_value_select')
-
-# 選択された日本語名から英語のカラム名を逆引き
-selected_bar_category_english = list(column_mapping.keys())[japanese_column_names.index(selected_bar_category_japanese)]
-selected_bar_value_english = list(column_mapping.keys())[japanese_column_names.index(selected_bar_value_japanese)]
-
-# 選択されたカラムに基づいて棒グラフを描画
-fig = px.bar(df, x=selected_bar_category_english, y=selected_bar_value_english, title=f'{column_mapping[selected_bar_category_english]}による{column_mapping[selected_bar_value_english]}の棒グラフ')
-st.plotly_chart(fig)
-#############################################################################
-
-#####################################円グラフ#################################
-st.markdown('<a name="section5"></a>', unsafe_allow_html=True)
-# 円グラフセクション
-st.header('円グラフ')
-# 円グラフのカテゴリカラム選択。キーを使って他のセレクトボックスと区別します。
-selected_pie_chart_japanese = st.selectbox('円グラフに使用するカテゴリカラムを選択してください', japanese_column_names, index=0, key='pie_chart_select')
-
-# 選択された日本語名から英語のカラム名を逆引き
-selected_pie_chart_english = list(column_mapping.keys())[japanese_column_names.index(selected_pie_chart_japanese)]
-
-# 選択されたカラムに基づいて円グラフを描画
-fig = px.pie(df, names=selected_pie_chart_english, title=f'{column_mapping[selected_pie_chart_english]}の円グラフ')
-st.plotly_chart(fig)
-###############################################################################
-
-
-###################################ヒートマップ#################################
-st.markdown('<a name="section6"></a>', unsafe_allow_html=True)
-# ヒートマップセクション
-st.header('ヒートマップ')
-# ヒートマップのX軸カテゴリカラム選択。キーを使って他のセレクトボックスと区別します。
-selected_heatmap_x_japanese = st.selectbox('ヒートマップのX軸に使用するカテゴリカラムを選択してください', japanese_column_names, index=0, key='heatmap_x_select')
-# ヒートマップのY軸カテゴリカラム選択。
-selected_heatmap_y_japanese = st.selectbox('ヒートマップのY軸に使用するカテゴリカラムを選択してください', japanese_column_names, index=1, key='heatmap_y_select')
-
-# 選択された日本語名から英語のカラム名を逆引き
-selected_heatmap_x_english = list(column_mapping.keys())[japanese_column_names.index(selected_heatmap_x_japanese)]
-selected_heatmap_y_english = list(column_mapping.keys())[japanese_column_names.index(selected_heatmap_y_japanese)]
-
-# データフレームをピボットしてヒートマップ用のデータを準備
-heatmap_df = df.groupby([selected_heatmap_x_english, selected_heatmap_y_english]).size().reset_index(name='counts')
-heatmap_df_pivot = heatmap_df.pivot(index=selected_heatmap_y_english, columns=selected_heatmap_x_english, values='counts')
-
-# ヒートマップを描画
-fig = px.imshow(heatmap_df_pivot, labels=dict(x=column_mapping[selected_heatmap_x_english], y=column_mapping[selected_heatmap_y_english], color="Count"), x=heatmap_df_pivot.columns, y=heatmap_df_pivot.index, aspect="auto", title=f'{column_mapping[selected_heatmap_x_english]}と{column_mapping[selected_heatmap_y_english]}のヒートマップ')
-st.plotly_chart(fig)
-#############################################################################
+plot_scatter(df, column_mapping)
+plot_histogram(df, column_mapping)
+plot_boxplot(df, column_mapping)
+plot_bar(df, column_mapping)
+plot_pie(df, column_mapping)
+plot_heatmap(df, column_mapping)
 
 st.markdown('<a name="section7"></a>', unsafe_allow_html=True)
 st.title('Streamlitアプリのユーザー制御について')
